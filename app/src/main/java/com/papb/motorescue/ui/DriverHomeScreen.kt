@@ -20,14 +20,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun DriverHomeScreen(
+    navController: androidx.navigation.NavController,
     viewModel: DriverViewModel = viewModel()
 ) {
     val historyList by viewModel.historyList.collectAsState()
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = { viewModel.addDummyData() }) {
-                Icon(Icons.Default.Add, contentDescription = "Tambah Tes")
+            FloatingActionButton(onClick = {
+                navController.navigate("driver_form")
+            }) {
+                Icon(Icons.Default.Add, contentDescription = "Lapor")
             }
         }
     ) { paddingValues ->

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.papb.motorescue.ui.DriverFormScreen
 import com.papb.motorescue.ui.DriverHomeScreen
 import com.papb.motorescue.ui.MechanicHomeScreen
 import com.papb.motorescue.ui.WelcomeScreen
@@ -23,12 +24,19 @@ fun MotoRescueApp() {
 
         // Rute 2: Halaman Driver
         composable("driver_home") {
-            DriverHomeScreen()
+            DriverHomeScreen(navController = navController)
         }
 
         // Rute 3: Halaman Montir
         composable("mechanic_home") {
             MechanicHomeScreen()
+        }
+
+        // Rute 4: Halaman Form Driver
+        composable("driver_form") {
+            DriverFormScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
     }
 }
