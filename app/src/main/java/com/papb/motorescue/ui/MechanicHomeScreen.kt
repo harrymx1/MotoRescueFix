@@ -22,6 +22,7 @@ import com.papb.motorescue.data.model.RescueRequest
 
 @Composable
 fun MechanicHomeScreen(
+    navController: androidx.navigation.NavController,
     viewModel: MechanicViewModel = viewModel()
 ) {
     val orderList by viewModel.orderList.collectAsState()
@@ -47,7 +48,13 @@ fun MechanicHomeScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(orderList) { order ->
-                        MechanicOrderCard(order)
+                        MechanicOrderCard(
+                            order = order,
+                            onItemClick = {
+                                // PINDAH KE DETAIL BAWA ID
+                                navController.navigate("mechanic_detail/${order.id}")
+                            }
+                        )
                     }
                 }
             }
@@ -56,7 +63,10 @@ fun MechanicHomeScreen(
 }
 
 @Composable
-fun MechanicOrderCard(order: RescueRequest) {
+fun MechanicOrderCard(
+    order: RescueRequest,
+    onItemClick: () -> Unit
+){
     Card(
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD)),
@@ -97,7 +107,7 @@ fun MechanicOrderCard(order: RescueRequest) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = {  },
+                onClick = onItemClick,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("LIHAT DETAIL & TERIMA")

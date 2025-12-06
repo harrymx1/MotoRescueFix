@@ -41,4 +41,18 @@ class MechanicViewModel : ViewModel() {
             }
         })
     }
+
+    // Cari Order berdasarkan ID
+    fun getOrderById(id: String): RescueRequest? {
+        return _orderList.value.find { it.id == id }
+    }
+
+    // TERIMA ORDER (Update Firebase)
+    fun acceptOrder(orderId: String) {
+        val updateData = mapOf(
+            "status" to "ACCEPTED",
+            "mechanicName" to "Montir Jagoan"
+        )
+        firebaseDb.child(orderId).updateChildren(updateData)
+    }
 }

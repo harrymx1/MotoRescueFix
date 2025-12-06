@@ -5,6 +5,8 @@ import android.graphics.BitmapFactory
 import android.util.Base64
 import java.io.ByteArrayOutputStream
 import java.io.File
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 
 object ImageUtils {
     fun fileToBase64(file: File): String {
@@ -21,6 +23,17 @@ object ImageUtils {
 
         // 4. Ubah jadi String Base64
         return Base64.encodeToString(byteArray, Base64.DEFAULT)
+    }
+
+    fun base64ToBitmap(base64String: String): ImageBitmap? {
+        return try {
+            val decodedBytes = Base64.decode(base64String, Base64.DEFAULT)
+            val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+            bitmap?.asImageBitmap()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 
     private fun getResizedBitmap(image: Bitmap, maxSize: Int): Bitmap {
