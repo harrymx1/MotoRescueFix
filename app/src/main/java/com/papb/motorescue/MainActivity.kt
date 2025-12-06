@@ -5,29 +5,42 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Text
+import androidx.lifecycle.lifecycleScope
+import com.papb.motorescue.data.local.AppDatabase
 import com.papb.motorescue.data.model.RescueRequest
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val dummyData = listOf(
-            RescueRequest(id = "1", driverName = "Harry", status = "WAITING", problemDesc = "Ban Bocor"),
-            RescueRequest(id = "2", driverName = "Budi", status = "ACCEPTED", problemDesc = "Mogok"),
-            RescueRequest(id = "3", driverName = "Siti", status = "WAITING", problemDesc = "Rantai Putus")
-        )
+        val database = AppDatabase.getDatabase(this)
+        val dao = database.rescueDao()
 
-        val orderanMasuk = dummyData.filter { laporan ->
-            laporan.status == "WAITING"
+        lifecycleScope.launch {
+            Log.d("TES_ROOM", "Sedang menyimpan data...")
+            dao.insertRescue(
+                RescueRequest(
+                    id = "tes_01",
+                    driverName = "Tes Driver Room",
+                    problemDesc = "Cek Database Berhasil",
+                    status = "WAITING"
+                )
+            )
+            Log.d("TES_ROOM", "Data berhasil disimpan!")
         }
 
-        Log.d("TES_MOTO", "=== DAFTAR ORDERAN MASUK ===")
-        orderanMasuk.forEach { data ->
-            Log.d("TES_MOTO", "Pengemudi: ${data.driverName} | Masalah: ${data.problemDesc}")
+        lifecycleScope.launch {
+            dao.getAllHistory().collect { daftarLaporan ->
+                Log.d("TES_ROOM", "=== ISI DATABASE SEKARANG ===")
+                daftarLaporan.forEach {
+                    Log.d("TES_ROOM", "Data: ${it.driverName} - ${it.problemDesc}")
+                }
+            }
         }
 
         setContent {
-            Text(text = "Cek Logcat dengan kata kunci: TES_MOTO")
+            Text(text = "Cek Logcat keyword: TES_ROOM")
         }
     }
 }
