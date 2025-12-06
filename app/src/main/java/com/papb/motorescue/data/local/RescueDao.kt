@@ -14,4 +14,7 @@ interface RescueDao {
 
     @Query("SELECT * FROM rescue_request ORDER BY id DESC")
     fun getAllHistory(): Flow<List<RescueRequest>>
+
+    @Query("UPDATE rescue_request SET status = :newStatus, mechanicName = :mechName WHERE id = :reportId")
+    suspend fun updateStatus(reportId: String, newStatus: String, mechName: String?)
 }

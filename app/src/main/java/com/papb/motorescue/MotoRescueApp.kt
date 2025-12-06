@@ -7,6 +7,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.papb.motorescue.ui.DriverFormScreen
 import com.papb.motorescue.ui.DriverHomeScreen
+import com.papb.motorescue.ui.DriverStatusScreen
+import com.papb.motorescue.ui.DriverViewModel
 import com.papb.motorescue.ui.MechanicDetailScreen
 import com.papb.motorescue.ui.MechanicHomeScreen
 import com.papb.motorescue.ui.MechanicViewModel
@@ -16,7 +18,9 @@ import com.papb.motorescue.ui.WelcomeScreen
 fun MotoRescueApp() {
     val navController = rememberNavController()
 
+    // 1. BUAT VIEWMODEL DI SINI (SHARED STATE)
     val sharedMechanicViewModel: MechanicViewModel = viewModel()
+    val sharedDriverViewModel: DriverViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = "welcome") {
 
@@ -30,17 +34,21 @@ fun MotoRescueApp() {
 
         // Rute 2: Driver Home
         composable("driver_home") {
-            DriverHomeScreen(navController = navController)
+            DriverHomeScreen(
+                navController = navController,
+                viewModel = sharedDriverViewModel
+            )
         }
 
         // Rute 3: Driver Form
         composable("driver_form") {
             DriverFormScreen(
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                viewModel = sharedDriverViewModel
             )
         }
 
-        // Rute 4: Mechanic Home (Sisi Montir)
+        // Rute 4: Mechanic Home
         composable("mechanic_home") {
             MechanicHomeScreen(
                 navController = navController,
@@ -48,13 +56,23 @@ fun MotoRescueApp() {
             )
         }
 
-        // Rute 5: Mechanic Detail (Sisi Montir)
+        // Rute 5: Mechanic Detail
         composable("mechanic_detail/{orderId}") { backStackEntry ->
             val orderId = backStackEntry.arguments?.getString("orderId") ?: ""
             MechanicDetailScreen(
                 orderId = orderId,
                 onNavigateBack = { navController.popBackStack() },
                 viewModel = sharedMechanicViewModel
+            )
+        }
+
+        // Rute 6: Driver Status
+        composable("driver_status/{orderId}") { backStackEntry ->
+            val orderId = backStackEntry.arguments?.getString("orderId") ?: ""
+            DriverStatusScreen(
+                orderId = orderId,
+                onNavigateBack = { navController.popBackStack() },
+                viewModel = sharedDriverViewModel
             )
         }
     }

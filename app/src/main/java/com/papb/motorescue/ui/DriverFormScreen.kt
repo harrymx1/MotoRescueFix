@@ -1,8 +1,6 @@
 package com.papb.motorescue.ui
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,19 +13,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import coil.compose.rememberAsyncImagePainter
 import com.google.android.gms.location.LocationServices
 import com.papb.motorescue.ui.components.CameraPreview
 import com.papb.motorescue.ui.components.takePhoto
 import java.io.File
 import java.util.concurrent.Executors
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun DriverFormScreen(
     onNavigateBack: () -> Unit,
-    viewModel: DriverViewModel = viewModel()
+    viewModel: DriverViewModel
 ) {
     val context = LocalContext.current
 
@@ -43,10 +39,9 @@ fun DriverFormScreen(
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
     var showCameraPreview by remember { mutableStateOf(false) }
 
-    // Setup Lokasi (FusedLocation)
+    // Setup Lokasi
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
-    // Izin Launcher (Meminta izin Lokasi & Kamera ke User)
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -56,10 +51,9 @@ fun DriverFormScreen(
                     if (location != null) {
                         currentLat = location.latitude
                         currentLong = location.longitude
-
                         locationText = "Lat: ${location.latitude}, Long: ${location.longitude}"
                     } else {
-                        locationText = "GPS aktif tapi lokasi null. Coba buka Google Maps dulu."
+                        locationText = "GPS aktif tapi lokasi null. Coba buka Google Maps."
                     }
                 }
             } catch (e: SecurityException) { /* Handle error */ }
@@ -68,7 +62,6 @@ fun DriverFormScreen(
 
     // --- UI UTAMA ---
     if (showCameraPreview) {
-        // TAMPILAN FULL SCREEN KAMERA
         Box(modifier = Modifier.fillMaxSize()) {
             CameraPreview(imageCapture = imageCapture)
             Button(
@@ -90,7 +83,6 @@ fun DriverFormScreen(
             }
         }
     } else {
-        // TAMPILAN FORMULIR
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -102,7 +94,6 @@ fun DriverFormScreen(
                 Text(if (photoFile == null) "AMBIL FOTO BAN" else "FOTO ULANG")
             }
 
-            // Preview Foto Kecil
             if (photoFile != null) {
                 Image(
                     painter = rememberAsyncImagePainter(photoFile),
@@ -119,10 +110,7 @@ fun DriverFormScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(onClick = {
                         permissionLauncher.launch(
-                            arrayOf(
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.CAMERA
-                            )
+                            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA)
                         )
                     }) {
                         Text("CEK LOKASI SAYA")
@@ -134,7 +122,7 @@ fun DriverFormScreen(
             OutlinedTextField(
                 value = problemDesc,
                 onValueChange = { problemDesc = it },
-                label = { Text("Deskripsi Masalah (cth: Ban Bocor)") },
+                label = { Text("Deskripsi Masalah") },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -150,7 +138,6 @@ fun DriverFormScreen(
                         long = currentLong,
                         addressInfo = locationText
                     )
-
                     Toast.makeText(context, "Laporan Terkirim!", Toast.LENGTH_SHORT).show()
                     onNavigateBack()
                 },

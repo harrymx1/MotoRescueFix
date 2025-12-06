@@ -93,17 +93,21 @@ fun MechanicDetailScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 4. TOMBOL NAVIGASI MAPS (INTENT)
+            // 4. TOMBOL NAVIGASI MAPS
             OutlinedButton(
                 onClick = {
-                    val gmmIntentUri = Uri.parse("google.navigation:q=${order.latitude},${order.longitude}")
-                    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-                    mapIntent.setPackage("com.google.android.apps.maps")
+                    if (order.latitude != 0.0 && order.longitude != 0.0) {
+                        val gmmIntentUri = Uri.parse("google.navigation:q=${order.latitude},${order.longitude}&mode=d")
+                        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                        mapIntent.setPackage("com.google.android.apps.maps")
 
-                    try {
-                        context.startActivity(mapIntent)
-                    } catch (e: Exception) {
-                        Toast.makeText(context, "Aplikasi Maps tidak ditemukan", Toast.LENGTH_SHORT).show()
+                        try {
+                            context.startActivity(mapIntent)
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Install Google Maps dulu", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Toast.makeText(context, "Lokasi tidak valid (0.0, 0.0)", Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier.fillMaxWidth().height(50.dp)

@@ -3,15 +3,15 @@ package com.papb.motorescue.ui
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.database.FirebaseDatabase
 import com.papb.motorescue.data.local.AppDatabase
 import com.papb.motorescue.data.model.RescueRequest
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.util.UUID
 import java.io.File
-import com.google.firebase.database.FirebaseDatabase
+import java.util.UUID
 
 class DriverViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -19,27 +19,13 @@ class DriverViewModel(application: Application) : AndroidViewModel(application) 
 
     private val firebaseDb = FirebaseDatabase.getInstance("https://motorescue-52d7c-default-rtdb.asia-southeast1.firebasedatabase.app")
         .getReference("laporan")
+
     val historyList: StateFlow<List<RescueRequest>> = dao.getAllHistory()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
-
-    fun addDummyData() {
-        viewModelScope.launch {
-            val dummy = RescueRequest(
-                id = UUID.randomUUID().toString(),
-                driverName = "Harry Driver",
-                problemDesc = "Ban Bocor (Tes Dummy)",
-                status = "WAITING",
-                address = "Jl. Percobaan No. ${ (1..100).random() }",
-                latitude = -7.9,
-                longitude = 112.6
-            )
-            dao.insertRescue(dummy)
-        }
-    }
 
     fun submitReport(
         photoFile: File?,
@@ -49,7 +35,7 @@ class DriverViewModel(application: Application) : AndroidViewModel(application) 
         addressInfo: String
     ) {
         viewModelScope.launch {
-            // 1. PROSES FOTO: Ubah File jadi String Base64
+            // 1. PROSES FOTO
             val base64Photo = if (photoFile != null) {
                 ImageUtils.fileToBase64(photoFile)
             } else {
@@ -74,10 +60,13 @@ class DriverViewModel(application: Application) : AndroidViewModel(application) 
 
             // 4. KIRIM KE FIREBASE (CLOUD)
             firebaseDb.child(reportId).setValue(newReport)
-                .addOnSuccessListener {
-                }
-                .addOnFailureListener {
-                }
+        }
+    }
+
+    // FUNGSI SINKRONISASI PENTING
+    fun syncFirebaseToLocal(id: String, status: String, mechanicName: String?) {
+        viewModelScope.launch {
+            dao.updateStatus(id, status, mechanicName)
         }
     }
 }

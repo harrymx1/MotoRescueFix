@@ -1,6 +1,6 @@
 package com.papb.motorescue.ui
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,12 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.papb.motorescue.data.model.RescueRequest
 
 @Composable
 fun DriverHomeScreen(
     navController: androidx.navigation.NavController,
-    viewModel: DriverViewModel = viewModel()
+    viewModel: DriverViewModel
 ) {
     val historyList by viewModel.historyList.collectAsState()
 
@@ -40,13 +40,11 @@ fun DriverHomeScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Header
             Text("Halo, Pengemudi!", style = MaterialTheme.typography.headlineMedium)
             Text("Riwayat Bantuan", style = MaterialTheme.typography.titleMedium, color = Color.Gray)
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // LIST DATA (Collection Implementation)
             if (historyList.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("Belum ada riwayat laporan.")
@@ -56,7 +54,11 @@ fun DriverHomeScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(historyList) { item ->
-                        RescueItemCard(item)
+                        Box(modifier = Modifier.clickable {
+                            navController.navigate("driver_status/${item.id}")
+                        }) {
+                            RescueItemCard(item)
+                        }
                     }
                 }
             }
@@ -65,15 +67,13 @@ fun DriverHomeScreen(
 }
 
 @Composable
-fun RescueItemCard(item: com.papb.motorescue.data.model.RescueRequest) {
+fun RescueItemCard(item: RescueRequest) {
     Card(
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0))
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(Icons.Default.Warning, contentDescription = null, tint = Color(0xFFFF9800))
