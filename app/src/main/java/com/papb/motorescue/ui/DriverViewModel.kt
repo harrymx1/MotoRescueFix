@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.UUID
+import java.io.File
 
 class DriverViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -34,6 +35,28 @@ class DriverViewModel(application: Application) : AndroidViewModel(application) 
                 longitude = 112.6
             )
             dao.insertRescue(dummy)
+        }
+    }
+
+    fun submitReport(
+        photoFile: File?,
+        description: String,
+        lat: Double,
+        long: Double,
+        addressInfo: String
+    ) {
+        viewModelScope.launch {
+            val newReport = RescueRequest(
+                id = UUID.randomUUID().toString(),
+                driverName = "Pengemudi (Anda)",
+                problemDesc = description,
+                photoUrl = photoFile?.absolutePath ?: "",
+                latitude = lat,
+                longitude = long,
+                address = addressInfo,
+                status = "WAITING"
+            )
+            dao.insertRescue(newReport)
         }
     }
 }

@@ -22,10 +22,12 @@ import com.papb.motorescue.ui.components.CameraPreview
 import com.papb.motorescue.ui.components.takePhoto
 import java.io.File
 import java.util.concurrent.Executors
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun DriverFormScreen(
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    viewModel: DriverViewModel = viewModel()
 ) {
     val context = LocalContext.current
 
@@ -33,6 +35,8 @@ fun DriverFormScreen(
     var photoFile by remember { mutableStateOf<File?>(null) }
     var locationText by remember { mutableStateOf("Lokasi belum diambil") }
     var problemDesc by remember { mutableStateOf("") }
+    var currentLat by remember { mutableStateOf(0.0) }
+    var currentLong by remember { mutableStateOf(0.0) }
 
     // Setup Kamera
     val imageCapture = remember { ImageCapture.Builder().build() }
@@ -47,10 +51,12 @@ fun DriverFormScreen(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true) {
-            // Izin Lokasi diberikan, ambil lokasi
             try {
                 fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                     if (location != null) {
+                        currentLat = location.latitude
+                        currentLong = location.longitude
+
                         locationText = "Lat: ${location.latitude}, Long: ${location.longitude}"
                     } else {
                         locationText = "GPS aktif tapi lokasi null. Coba buka Google Maps dulu."
@@ -137,7 +143,15 @@ fun DriverFormScreen(
             // 4. TOMBOL KIRIM
             Button(
                 onClick = {
-                    Toast.makeText(context, "Data Siap Dikirim!", Toast.LENGTH_SHORT).show()
+                    viewModel.submitReport(
+                        photoFile = photoFile,
+                        description = problemDesc,
+                        lat = currentLat,
+                        long = currentLong,
+                        addressInfo = locationText
+                    )
+
+                    Toast.makeText(context, "Laporan Terkirim!", Toast.LENGTH_SHORT).show()
                     onNavigateBack()
                 },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
