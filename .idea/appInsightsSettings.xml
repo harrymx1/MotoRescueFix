@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.papb.motorescue" />
+                  <option name="mobileSdkAppId" value="1:814580161822:android:ab113235c2d3c6cdb73d0f" />
+                  <option name="projectId" value="motorescue-52d7c" />
+                  <option name="projectNumber" value="814580161822" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

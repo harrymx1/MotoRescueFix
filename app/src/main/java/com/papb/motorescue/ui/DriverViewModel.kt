@@ -11,11 +11,14 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.UUID
 import java.io.File
+import com.google.firebase.database.FirebaseDatabase
 
 class DriverViewModel(application: Application) : AndroidViewModel(application) {
 
     private val dao = AppDatabase.getDatabase(application).rescueDao()
 
+    private val firebaseDb = FirebaseDatabase.getInstance("https://motorescue-52d7c-default-rtdb.asia-southeast1.firebasedatabase.app")
+        .getReference("laporan")
     val historyList: StateFlow<List<RescueRequest>> = dao.getAllHistory()
         .stateIn(
             scope = viewModelScope,
@@ -46,17 +49,35 @@ class DriverViewModel(application: Application) : AndroidViewModel(application) 
         addressInfo: String
     ) {
         viewModelScope.launch {
+            // 1. PROSES FOTO: Ubah File jadi String Base64
+            val base64Photo = if (photoFile != null) {
+                ImageUtils.fileToBase64(photoFile)
+            } else {
+                ""
+            }
+
+            // 2. BUNGKUS DATA
+            val reportId = UUID.randomUUID().toString()
             val newReport = RescueRequest(
-                id = UUID.randomUUID().toString(),
+                id = reportId,
                 driverName = "Pengemudi (Anda)",
                 problemDesc = description,
-                photoUrl = photoFile?.absolutePath ?: "",
+                photoUrl = base64Photo,
                 latitude = lat,
                 longitude = long,
                 address = addressInfo,
                 status = "WAITING"
             )
+
+            // 3. SIMPAN KE ROOM (OFFLINE)
             dao.insertRescue(newReport)
+
+            // 4. KIRIM KE FIREBASE (CLOUD)
+            firebaseDb.child(reportId).setValue(newReport)
+                .addOnSuccessListener {
+                }
+                .addOnFailureListener {
+                }
         }
     }
 }

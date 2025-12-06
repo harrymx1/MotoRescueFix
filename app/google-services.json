@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "814580161822",
+    "project_id": "motorescue-52d7c",
+    "storage_bucket": "motorescue-52d7c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:814580161822:android:ab113235c2d3c6cdb73d0f",
+        "android_client_info": {
+          "package_name": "com.papb.motorescue"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0r24XJ3h0VsUoQYdfyr67Gkteh46uDB8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
