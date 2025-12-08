@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -34,6 +35,17 @@ fun MechanicHomeScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
+            Button(
+                onClick = { navController.navigate("consultation/mechanic") }, // <--- Masuk sbg Montir
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A148C))
+            ) {
+                Icon(Icons.Default.Forum, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("JAWAB KONSULTASI")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
             Text("Halo, Montir!", style = MaterialTheme.typography.headlineMedium)
             Text("Orderan Masuk", style = MaterialTheme.typography.titleMedium, color = Color.Gray)
 

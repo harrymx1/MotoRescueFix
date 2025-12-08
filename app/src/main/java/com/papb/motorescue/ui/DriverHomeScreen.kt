@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -40,6 +41,33 @@ fun DriverHomeScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF3E5F5)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+                    .clickable {
+                        navController.navigate("consultation/driver")
+                    }
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "🔧 FORUM KONSULTASI BENGKEL",
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF4A148C),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        Icons.Default.ArrowForward,
+                        contentDescription = null,
+                        tint = Color(0xFF4A148C)
+                    )
+                }
+            }
+
             Text("Halo, Pengemudi!", style = MaterialTheme.typography.headlineMedium)
             Text("Riwayat Bantuan", style = MaterialTheme.typography.titleMedium, color = Color.Gray)
 

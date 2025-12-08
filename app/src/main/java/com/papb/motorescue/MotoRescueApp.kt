@@ -5,6 +5,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.papb.motorescue.ui.ConsultationScreen
 import com.papb.motorescue.ui.DriverFormScreen
 import com.papb.motorescue.ui.DriverHomeScreen
 import com.papb.motorescue.ui.DriverStatusScreen
@@ -73,6 +74,15 @@ fun MotoRescueApp() {
                 orderId = orderId,
                 onNavigateBack = { navController.popBackStack() },
                 viewModel = sharedDriverViewModel
+            )
+        }
+
+        // Rute 7: Forum Konsultasi (Menerima parameter 'role')
+        composable("consultation/{role}") { backStackEntry ->
+            val role = backStackEntry.arguments?.getString("role") ?: "driver"
+            ConsultationScreen(
+                isMechanic = (role == "mechanic"),
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }
