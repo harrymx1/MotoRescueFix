@@ -63,7 +63,7 @@ class DriverViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    // FUNGSI SINKRONISASI PENTING
+    // FUNGSI SINKRONISASI
     fun syncFirebaseToLocal(id: String, status: String, mechanicName: String?) {
         viewModelScope.launch {
             dao.updateStatus(id, status, mechanicName)

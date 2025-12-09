@@ -17,38 +17,31 @@ class ConsultationViewModel : ViewModel() {
     var uploadStatus by mutableStateOf("")
 
     init {
-        // Otomatis mulai memantau data saat ViewModel dibuat
         startAutoRefresh()
     }
 
-    // FUNGSI BARU: Polling (Cek server tiap 3 detik)
     private fun startAutoRefresh() {
         viewModelScope.launch {
-            // Loading awal saja yang pakai spinner
             fetchConsultations()
 
-            // Selanjutnya refresh diam-diam (Silent Refresh)
             while (isActive) {
-                delay(3000) // Tunggu 3 detik
+                delay(3000)
                 try {
-                    // Ambil data terbaru tanpa mengubah status 'isLoading' biar layar gak kedip
                     val newData = RetrofitClient.instance.getConsultations().reversed()
                     consultationList = newData
                 } catch (e: Exception) {
-                    // Kalau error koneksi saat refresh, abaikan saja (tunggu loop berikutnya)
                 }
             }
         }
     }
 
-    // GET Manual (Dipakai untuk loading pertama)
+    // GET
     fun fetchConsultations() {
         viewModelScope.launch {
             isLoading = true
             try {
                 consultationList = RetrofitClient.instance.getConsultations().reversed()
             } catch (e: Exception) {
-                // Error handling
             } finally {
                 isLoading = false
             }
@@ -63,7 +56,6 @@ class ConsultationViewModel : ViewModel() {
                 val newData = Consultation(motorType = motor, problem = keluhan, mechanicReply = "")
                 RetrofitClient.instance.addConsultation(newData)
                 uploadStatus = "Terkirim!"
-                // Gak perlu fetch manual, nanti auto-refresh yang akan ambil datanya
             } catch (e: Exception) { uploadStatus = "Gagal kirim." }
         }
     }
@@ -73,7 +65,6 @@ class ConsultationViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 RetrofitClient.instance.deleteConsultation(id)
-                // Data akan hilang otomatis di refresh berikutnya (max 3 detik)
             } catch (e: Exception) { }
         }
     }
