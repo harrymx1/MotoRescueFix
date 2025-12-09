@@ -15,17 +15,19 @@ import java.util.UUID
 
 class DriverViewModel(application: Application) : AndroidViewModel(application) {
 
+    // Sumber Data (DAO Room)
     private val dao = AppDatabase.getDatabase(application).rescueDao()
 
-    private val firebaseDb = FirebaseDatabase.getInstance("https://motorescue-52d7c-default-rtdb.asia-southeast1.firebasedatabase.app")
-        .getReference("laporan")
-
+    // StateFlow
     val historyList: StateFlow<List<RescueRequest>> = dao.getAllHistory()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+
+    private val firebaseDb = FirebaseDatabase.getInstance("https://motorescue-52d7c-default-rtdb.asia-southeast1.firebasedatabase.app")
+        .getReference("laporan")
 
     fun submitReport(
         photoFile: File?,

@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import coil.compose.rememberAsyncImagePainter
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -37,24 +38,38 @@ fun DriverFormScreen(
 ) {
     val context = LocalContext.current
 
-    // State
+    // --- STATE ---
     var photoFile by remember { mutableStateOf<File?>(null) }
     var locationText by remember { mutableStateOf("Lokasi belum diambil") }
     var problemDesc by remember { mutableStateOf("") }
     var currentLat by remember { mutableStateOf(0.0) }
     var currentLong by remember { mutableStateOf(0.0) }
 
-    // Camera Setup
-    val imageCapture = remember { ImageCapture.Builder().build() }
-    val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
+    // Kontrol Kamera
     var showCameraPreview by remember { mutableStateOf(false) }
 
-    // Location Setup
+    // Setup Kamera & Lokasi
+    val imageCapture = remember { ImageCapture.Builder().build() }
+    val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-    val permissionLauncher = rememberLauncherForActivityResult(
+
+    // --- 1. LAUNCHER KHUSUS KAMERA ---
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            showCameraPreview = true
+        } else {
+            Toast.makeText(context, "Izin kamera ditolak", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // --- 2. LAUNCHER KHUSUS LOKASI ---
+    val locationLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true) {
+        if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+            permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
             try {
                 fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
                     .addOnSuccessListener { location ->
@@ -67,6 +82,8 @@ fun DriverFormScreen(
                         }
                     }
             } catch (e: SecurityException) { }
+        } else {
+            Toast.makeText(context, "Izin lokasi ditolak", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -79,8 +96,15 @@ fun DriverFormScreen(
                         imageCapture = imageCapture,
                         outputDirectory = context.cacheDir,
                         executor = cameraExecutor,
-                        onImageCaptured = { file -> photoFile = file; showCameraPreview = false },
-                        onError = { Toast.makeText(context, "Gagal Foto", Toast.LENGTH_SHORT).show() }
+                        onImageCaptured = { file ->
+                            photoFile = file
+                            showCameraPreview = false
+                        },
+                        onError = {
+                            ContextCompat.getMainExecutor(context).execute {
+                                Toast.makeText(context, "Gagal Foto", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     )
                 },
                 modifier = Modifier.align(Alignment.BottomCenter).padding(32.dp),
@@ -103,7 +127,7 @@ fun DriverFormScreen(
             ) {
                 Text("Lapor Masalah", style = MaterialTheme.typography.headlineMedium, color = GoldPrimary)
 
-                // 1. INPUT FOTO (Card Style)
+                // 1. INPUT FOTO
                 Card(
                     colors = CardDefaults.cardColors(containerColor = DarkSurface),
                     shape = RoundedCornerShape(16.dp),
@@ -118,7 +142,9 @@ fun DriverFormScreen(
                             )
                         }
                         Button(
-                            onClick = { showCameraPreview = true },
+                            onClick = {
+                                cameraLauncher.launch(Manifest.permission.CAMERA)
+                            },
                             colors = ButtonDefaults.buttonColors(containerColor = if (photoFile == null) GoldPrimary else Color.DarkGray),
                             shape = RoundedCornerShape(8.dp)
                         ) {
@@ -140,8 +166,8 @@ fun DriverFormScreen(
                         Spacer(modifier = Modifier.height(12.dp))
                         OutlinedButton(
                             onClick = {
-                                permissionLauncher.launch(
-                                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA)
+                                locationLauncher.launch(
+                                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
                                 )
                             },
                             modifier = Modifier.fillMaxWidth(),
@@ -178,7 +204,13 @@ fun DriverFormScreen(
                 // 4. TOMBOL KIRIM
                 Button(
                     onClick = {
-                        viewModel.submitReport(photoFile, problemDesc, currentLat, currentLong, locationText)
+                        viewModel.submitReport(
+                            photoFile = photoFile,
+                            description = problemDesc,
+                            lat = currentLat,
+                            long = currentLong,
+                            addressInfo = locationText
+                        )
                         Toast.makeText(context, "Laporan Terkirim!", Toast.LENGTH_SHORT).show()
                         onNavigateBack()
                     },
